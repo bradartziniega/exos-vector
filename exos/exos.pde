@@ -20,9 +20,9 @@ void setup() {
   size(1600,1024);
   smooth();
   controlP5 = new ControlP5(this);
-    
+  
+  controlP5.addSlider("gridSizeY",5,100,27.0,20,0,100,15);  
   controlP5.addSlider("gridSize",5,100,27.0,20,20,100,15);
-  controlP5.addSlider("gridSizeY",5,100,27.0,20,0,100,15);
   controlP5.addSlider("percentageGrid",0.1,100,20,40,100,15);
   
   PVector tL, tR, bL, bR;
@@ -56,7 +56,7 @@ void setup() {
   sliderBottomRight.setLabel("Line Weight");
   bottomRight = controlP5.addColorPicker("bottom_right",int(bR.x),int(bR.y+20),100,15);
 
-  controlP5.setColorLabel(0x000000);
+  controlP5.setColorLabel(0xffffff);
   controlP5.enableShortcuts();
   
 }
@@ -85,7 +85,7 @@ void draw() {
   float gridDim = gridSpacingInterval * (percentageGrid/100);
   
   for(int i=0; i<gridSize; i++){
-    for(int j=0;j<gridSize; j++){
+    for(int j=0;j<gridSizeY; j++){
     
       pushMatrix();
       
@@ -94,7 +94,7 @@ void draw() {
       noStroke();
       
       float percent_x = float(i)/float(gridSize-1);
-      float percent_y = float(j)/float(gridSize-1);
+      float percent_y = float(j)/float(gridSizeY-1);
       
       
       color colorRowStart = lerpColor(topLeft.getColorValue(),bottomLeft.getColorValue(),percent_y);
