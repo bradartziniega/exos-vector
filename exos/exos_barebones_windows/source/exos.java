@@ -1,5 +1,24 @@
-import controlP5.*;
-import processing.pdf.*;
+import processing.core.*; 
+import processing.data.*; 
+import processing.event.*; 
+import processing.opengl.*; 
+
+import controlP5.*; 
+import processing.pdf.*; 
+
+import java.util.HashMap; 
+import java.util.ArrayList; 
+import java.io.File; 
+import java.io.BufferedReader; 
+import java.io.PrintWriter; 
+import java.io.InputStream; 
+import java.io.OutputStream; 
+import java.io.IOException; 
+
+public class exos extends PApplet {
+
+
+
 
 ControlP5 controlP5;
 ColorPicker topLeft, topRight, bottomLeft, bottomRight, background_picker;
@@ -11,7 +30,7 @@ Toggle isInteractive;
 public int gridSizeX,gridSizeY;
 public float lineWeight_topleft, lineWeight_topright, lineWeight_bottomleft, lineWeight_bottomright;
 public float percentageGrid;
-public float globalGridWidth = 1000;
+public float globalGridWidth = 1400;
 public float numberboxValue = 100;
 
 int recordFrame = 0;
@@ -23,9 +42,9 @@ float mousePercentX, mousePercentY;
 float[] dim;
 float[] dimLine;
 
-boolean barebones = false;
+boolean barebones = true;
 
-void setup() {
+public void setup() {
   
   size(1600,1024);
   smooth();
@@ -38,85 +57,85 @@ void setup() {
   bL = new PVector(tL.x, tL.y+200);
   bR = new PVector(tR.x, tL.y+200);  
   
-  xStart = (width - globalGridWidth)/2.0;
-  yStart = (height - globalGridWidth)/2.0;
+  xStart = (width - globalGridWidth)/2.0f;
+  yStart = (height - globalGridWidth)/2.0f;
   
   background_picker = controlP5.addColorPicker("background_color",20,100,100,15);
   
   //TOP LEFT
   //--------------------------------------------------------
   //X or + 
-  toggleTopLeft = controlP5.addToggle("toggle_topleft",false,int(tL.x),int(tL.y-20),15,15);
+  toggleTopLeft = controlP5.addToggle("toggle_topleft",false,PApplet.parseInt(tL.x),PApplet.parseInt(tL.y-20),15,15);
   toggleTopLeft.setLabel("X");
   toggleTopLeft.captionLabel().style().marginTop = -15;
   toggleTopLeft.captionLabel().style().marginLeft = 20;
   //CW or CCW
-  ccwTopLeft = controlP5.addToggle("toggle_topleftCCW",false,int(tL.x)+40,int(tL.y-20),15,15);
+  ccwTopLeft = controlP5.addToggle("toggle_topleftCCW",false,PApplet.parseInt(tL.x)+40,PApplet.parseInt(tL.y-20),15,15);
   ccwTopLeft.setLabel("CW");
   ccwTopLeft.captionLabel().style().marginTop = -15;
   ccwTopLeft.captionLabel().style().marginLeft = 20;
   //Lineweight
-  sliderTopLeft = controlP5.addSlider("lineWeight_topleft",0.1,50,2,int(tL.x),int(tL.y),100,15);
+  sliderTopLeft = controlP5.addSlider("lineWeight_topleft",0.1f,50,2,PApplet.parseInt(tL.x),PApplet.parseInt(tL.y),100,15);
   sliderTopLeft.setLabel("");
   //Color
-  topLeft = controlP5.addColorPicker("top_left",int(tL.x),int(tL.y+20),100,15);
+  topLeft = controlP5.addColorPicker("top_left",PApplet.parseInt(tL.x),PApplet.parseInt(tL.y+20),100,15);
   //--------------------------------------------------------
   
   //TOP RIGHT
   //--------------------------------------------------------
   //X or + 
-  toggleTopRight = controlP5.addToggle("toggle_topright",false,int(tR.x),int(tR.y-20),15,15);
+  toggleTopRight = controlP5.addToggle("toggle_topright",false,PApplet.parseInt(tR.x),PApplet.parseInt(tR.y-20),15,15);
   toggleTopRight.setLabel("X"); 
   toggleTopRight.captionLabel().style().marginTop = -15;
   toggleTopRight.captionLabel().style().marginLeft = 20;
   //CW or CCW
-  ccwTopRight = controlP5.addToggle("toggle_toprightCCW",false,int(tR.x)+40,int(tR.y-20),15,15);
+  ccwTopRight = controlP5.addToggle("toggle_toprightCCW",false,PApplet.parseInt(tR.x)+40,PApplet.parseInt(tR.y-20),15,15);
   ccwTopRight.setLabel("CW"); 
   ccwTopRight.captionLabel().style().marginTop = -15;
   ccwTopRight.captionLabel().style().marginLeft = 20;
   //Lineweight
-  sliderTopRight = controlP5.addSlider("lineWeight_topright",0.1,50,2,int(tR.x),int(tR.y),100,15);
+  sliderTopRight = controlP5.addSlider("lineWeight_topright",0.1f,50,2,PApplet.parseInt(tR.x),PApplet.parseInt(tR.y),100,15);
   sliderTopRight.setLabel("");
   //Color
-  topRight = controlP5.addColorPicker("top_right",int(tR.x),int(tR.y+20),100,15);
+  topRight = controlP5.addColorPicker("top_right",PApplet.parseInt(tR.x),PApplet.parseInt(tR.y+20),100,15);
   //--------------------------------------------------------
   
   //BOTTOM LEFT
   //--------------------------------------------------------
   //X or + 
-  toggleBottomLeft = controlP5.addToggle("toggle_bottomleft",false,int(bL.x),int(bL.y-20),15,15);
+  toggleBottomLeft = controlP5.addToggle("toggle_bottomleft",false,PApplet.parseInt(bL.x),PApplet.parseInt(bL.y-20),15,15);
   toggleBottomLeft.setLabel("X");
   toggleBottomLeft.captionLabel().style().marginTop = -15;
   toggleBottomLeft.captionLabel().style().marginLeft = 20;
   //CW or CCW
-  ccwBottomLeft = controlP5.addToggle("toggle_bottomleftCCW",false,int(bL.x)+40,int(bL.y-20),15,15);
+  ccwBottomLeft = controlP5.addToggle("toggle_bottomleftCCW",false,PApplet.parseInt(bL.x)+40,PApplet.parseInt(bL.y-20),15,15);
   ccwBottomLeft.setLabel("CW");
   ccwBottomLeft.captionLabel().style().marginTop = -15;
   ccwBottomLeft.captionLabel().style().marginLeft = 20;  
   //Lineweight
-  sliderBottomLeft = controlP5.addSlider("lineWeight_bottomleft",0.1,50,2,int(bL.x),int(bL.y),100,15);
+  sliderBottomLeft = controlP5.addSlider("lineWeight_bottomleft",0.1f,50,2,PApplet.parseInt(bL.x),PApplet.parseInt(bL.y),100,15);
   sliderBottomLeft.setLabel("");
   //Color
-  bottomLeft = controlP5.addColorPicker("bottom_left",int(bL.x),int(bL.y+20),100,15);
+  bottomLeft = controlP5.addColorPicker("bottom_left",PApplet.parseInt(bL.x),PApplet.parseInt(bL.y+20),100,15);
   //--------------------------------------------------------
 
    //BOTTOM RIGHT
   //--------------------------------------------------------
   //X or + 
-  toggleBottomRight = controlP5.addToggle("toggle_bottomright",false,int(bR.x),int(bR.y-20),15,15);
+  toggleBottomRight = controlP5.addToggle("toggle_bottomright",false,PApplet.parseInt(bR.x),PApplet.parseInt(bR.y-20),15,15);
   toggleBottomRight.setLabel("X");
   toggleBottomRight.captionLabel().style().marginTop = -15;
   toggleBottomRight.captionLabel().style().marginLeft = 20;  
   //CW or CCW
-  ccwBottomRight = controlP5.addToggle("toggle_bottomrightCCW",false,int(bR.x)+40,int(bR.y-20),15,15);
+  ccwBottomRight = controlP5.addToggle("toggle_bottomrightCCW",false,PApplet.parseInt(bR.x)+40,PApplet.parseInt(bR.y-20),15,15);
   ccwBottomRight.setLabel("CW");
   ccwBottomRight.captionLabel().style().marginTop = -15;
   ccwBottomRight.captionLabel().style().marginLeft = 20;    
   //Lineweight
-  sliderBottomRight = controlP5.addSlider("lineWeight_bottomright",0.1,50,2,int(bR.x),int(bR.y),100,15);
+  sliderBottomRight = controlP5.addSlider("lineWeight_bottomright",0.1f,50,2,PApplet.parseInt(bR.x),PApplet.parseInt(bR.y),100,15);
   sliderBottomRight.setLabel("");
   //Color
-  bottomRight = controlP5.addColorPicker("bottom_right",int(bR.x),int(bR.y+20),100,15);
+  bottomRight = controlP5.addColorPicker("bottom_right",PApplet.parseInt(bR.x),PApplet.parseInt(bR.y+20),100,15);
   //--------------------------------------------------------
 
   controlP5.setColorLabel(0xffffff);
@@ -127,9 +146,9 @@ void setup() {
   isInteractive.captionLabel().style().marginTop = -15;
   isInteractive.captionLabel().style().marginLeft = 20;
   
-  gridX = controlP5.addSlider("gridSizeX",5,100,27.0,20,40,100,15);
-  gridY = controlP5.addSlider("gridSizeY",5,100,27.0,20,60,100,15);  
-  percentGrid = controlP5.addSlider("percentageGrid",0.1,100,50,20,80,100,15);
+  gridX = controlP5.addSlider("gridSizeX",5,100,27.0f,20,40,100,15);
+  gridY = controlP5.addSlider("gridSizeY",5,100,27.0f,20,60,100,15);  
+  percentGrid = controlP5.addSlider("percentageGrid",0.1f,100,50,20,80,100,15);
   
   background_picker.setColorValue(color(31,31,33,255));
   background_picker.setLabel("Background Color");
@@ -142,7 +161,7 @@ void setup() {
   }
 }
 
-void draw() {
+public void draw() {
   
   if(record){
     beginRecord(PDF,"output" + recordFrame + ".pdf");
@@ -153,16 +172,16 @@ void draw() {
   gridSpacingInterval = 0;
   
   if(gridSizeX>=gridSizeY){
-    gridSpacingInterval = globalGridWidth/float(gridSizeX);  
+    gridSpacingInterval = globalGridWidth/PApplet.parseFloat(gridSizeX);  
   }
   else{
-    gridSpacingInterval = globalGridWidth/float(gridSizeY);  
+    gridSpacingInterval = globalGridWidth/PApplet.parseFloat(gridSizeY);  
   }
 
   float gridDim = gridSpacingInterval * (percentageGrid/100);
   
-  xStart = (width - gridSizeX*gridSpacingInterval)/2.0;
-  yStart = (height - gridSizeY*gridSpacingInterval)/2.0;
+  xStart = (width - gridSizeX*gridSpacingInterval)/2.0f;
+  yStart = (height - gridSizeY*gridSpacingInterval)/2.0f;
   
   
   
@@ -173,12 +192,12 @@ void draw() {
       translate(xStart + (i*gridSpacingInterval) + (gridSpacingInterval/2),yStart + (j*gridSpacingInterval) + (gridSpacingInterval/2));
       noStroke();
       
-      float percent_x = float(i)/float(gridSizeX-1);
-      float percent_y = float(j)/float(gridSizeY-1);
+      float percent_x = PApplet.parseFloat(i)/PApplet.parseFloat(gridSizeX-1);
+      float percent_y = PApplet.parseFloat(j)/PApplet.parseFloat(gridSizeY-1);
       
-      color colorRowStart = lerpColor(topLeft.getColorValue(),bottomLeft.getColorValue(),percent_y);
-      color colorRowEnd = lerpColor(topRight.getColorValue(),bottomRight.getColorValue(),percent_y);
-      color currentColor = lerpColor(colorRowStart,colorRowEnd,percent_x);
+      int colorRowStart = lerpColor(topLeft.getColorValue(),bottomLeft.getColorValue(),percent_y);
+      int colorRowEnd = lerpColor(topRight.getColorValue(),bottomRight.getColorValue(),percent_y);
+      int currentColor = lerpColor(colorRowStart,colorRowEnd,percent_x);
 
       int topLeftMark = toggleTopLeft.getState()? (ccwTopLeft.getState()? 1 :-1) : 0;
       int topRightMark = toggleTopRight.getState()? (ccwTopRight.getState()? 1 :-1) : 0;
@@ -212,7 +231,7 @@ void draw() {
         
         float closeness = sqrt((abs(mousePercentX-percent_x)*abs(mousePercentY-percent_y)));
         float easing = pow(1 - closeness,10);
-        if (easing<=0.01) easing = 0.01;
+        if (easing<=0.01f) easing = 0.01f;
 
         dim[index] += dx*easing;
         dimLine[index] += dL*easing;
@@ -249,19 +268,17 @@ void draw() {
   }
 }
 
-void initializeInteractiveModeSettings(){
+public void initializeInteractiveModeSettings(){
   
   topLeft.setColorValue(color(137,61,255));
-  topRight.setColorValue(color(0,255,43));
-  bottomLeft.setColorValue(color(137,61,255));
-  bottomRight.setColorValue(color(137,61,255));
+  topRight.setColorValue(color(0,255,43)); 
   percentGrid.setValue(68);
   gridX.setValue(43);
   gridY.setValue(30);
   sliderTopRight.setValue(6);
-  sliderTopLeft.setValue(0.59);
-  sliderBottomLeft.setValue(0.59);
-  sliderBottomRight.setValue(0.59);
+  sliderTopLeft.setValue(0.59f);
+  sliderBottomLeft.setValue(0.59f);
+  sliderBottomRight.setValue(0.59f);
   
   dim = new float[gridSizeX*gridSizeY];
   dimLine = new float[gridSizeX*gridSizeY];
@@ -275,7 +292,7 @@ void initializeInteractiveModeSettings(){
   
 }
 
-void toggle_interactive(boolean theFlag){
+public void toggle_interactive(boolean theFlag){
  if(theFlag==true){
    initializeInteractiveModeSettings();
  }
@@ -284,7 +301,7 @@ void toggle_interactive(boolean theFlag){
  }
 }
 
-void controlEvent(ControlEvent theEvent){
+public void controlEvent(ControlEvent theEvent){
   if(theEvent.controller().equals(gridX) || theEvent.controller().equals(gridY)){
     dim = new float[gridSizeX*gridSizeY];
   dimLine = new float[gridSizeX*gridSizeY];
@@ -299,7 +316,7 @@ void controlEvent(ControlEvent theEvent){
 }
 
 
-float evaluateBiLinear(int quadrant,float percent_x,float percent_y,float mousePercentX,float mousePercentY,float valueToGoFrom, float valueToGetTo){
+public float evaluateBiLinear(int quadrant,float percent_x,float percent_y,float mousePercentX,float mousePercentY,float valueToGoFrom, float valueToGetTo){
   float x1, x2, y1, y2, Q11, Q21, Q12, Q22;
   x1 = 0;
   x2 = 0;
@@ -359,7 +376,7 @@ float evaluateBiLinear(int quadrant,float percent_x,float percent_y,float mouseP
   return A*B;  
 }
 
-void keyPressed() {
+public void keyPressed() {
   switch(key) {
     case('p'):
     record = true;
@@ -367,7 +384,7 @@ void keyPressed() {
   }
 }
 
-boolean isInGrid(int xPos, int yPos){
+public boolean isInGrid(int xPos, int yPos){
  if(xPos>=xStart && xPos<=xStart+gridSizeX*gridSpacingInterval && yPos>=yStart && yPos<=yStart+gridSizeY*gridSpacingInterval){
    return true; 
  }
@@ -376,15 +393,24 @@ boolean isInGrid(int xPos, int yPos){
  }
 }
 
-void mouseMoved(){
+public void mouseMoved(){
   if(isInGrid(mouseX,mouseY)){
       mousePercentX = (mouseX-xStart)/(gridSizeX*gridSpacingInterval);
       mousePercentY = (mouseY-yStart)/(gridSizeY*gridSpacingInterval);
    }
   else{
-    mousePercentX = .5;
-     mousePercentY = .5;
+    mousePercentX = .5f;
+     mousePercentY = .5f;
    } 
 }
 
 
+  static public void main(String[] passedArgs) {
+    String[] appletArgs = new String[] { "exos" };
+    if (passedArgs != null) {
+      PApplet.main(concat(appletArgs, passedArgs));
+    } else {
+      PApplet.main(appletArgs);
+    }
+  }
+}
