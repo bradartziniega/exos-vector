@@ -2,17 +2,17 @@ import controlP5.*;
 import processing.pdf.*;
 
 ControlP5 controlP5;
-ColorPicker topLeft,topRight,bottomLeft,bottomRight;
+ColorPicker topLeft, topRight, bottomLeft, bottomRight, background_picker;
 Toggle toggleTopLeft, toggleTopRight, toggleBottomLeft, toggleBottomRight;
-Slider sliderTopLeft, sliderTopRight, sliderBottomLeft, sliderBottomRight;
+Slider sliderTopLeft, sliderTopRight, sliderBottomLeft, sliderBottomRight, gridX, gridY, percentGrid;
 
-public int gridSize,gridSizeY;
+public int gridSizeX,gridSizeY;
 public float lineWeight_topleft, lineWeight_topright, lineWeight_bottomleft, lineWeight_bottomright;
 public float percentageGrid;
 public float globalGridWidth = 1000;
 public float numberboxValue = 100;
 
-
+int recordFrame = 0;
 boolean record;
 
 
@@ -21,16 +21,18 @@ void setup() {
   smooth();
   controlP5 = new ControlP5(this);
   
-  controlP5.addSlider("gridSizeY",5,100,27.0,20,0,100,15);  
-  controlP5.addSlider("gridSize",5,100,27.0,20,20,100,15);
-  controlP5.addSlider("percentageGrid",0.1,100,20,40,100,15);
+  gridY = controlP5.addSlider("gridSizeY",5,100,27.0,20,0,100,15);  
+  gridX = controlP5.addSlider("gridSizeX",5,100,27.0,20,20,100,15);
+  percentGrid = controlP5.addSlider("percentageGrid",0.1,100,50,20,40,100,15);
   
   PVector tL, tR, bL, bR;
   
-  tL = new PVector(20,100);
-  tR = new PVector(200,100);
-  bL = new PVector(20,300);
-  bR = new PVector(200, 300);  
+  tL = new PVector(20,200);
+  tR = new PVector(tL.x+180,tL.y);
+  bL = new PVector(tL.x, tL.y+200);
+  bR = new PVector(tR.x, tL.y+200);  
+  
+  background_picker = controlP5.addColorPicker("background_color",20,100,100,15);
   
   toggleTopLeft = controlP5.addToggle("toggle_topleft",false,int(tL.x),int(tL.y-20),15,15);
   toggleTopLeft.setLabel("");
@@ -59,24 +61,35 @@ void setup() {
   controlP5.setColorLabel(0xffffff);
   controlP5.enableShortcuts();
   
+  background_picker.setColorValue(color(31,31,33,255));
+  background_picker.setLabel("Background Color");
+  
+  percentGrid.setValue(50);
+  gridX.setValue(25);
+  gridY.setValue(25);
+  sliderTopLeft.setValue(2);
+  sliderTopRight.setValue(2);
+  sliderBottomLeft.setValue(2);
+  sliderBottomRight.setValue(2);
+  
 }
 
 void draw() {
   
   if(record){
-    beginRecord(PDF,"test.pdf");
+    beginRecord(PDF,"output" + recordFrame + ".pdf");
   }
   
   
-  background(31,31,33);
+  background(background_picker.getColorValue());
   
   float xStart = (width - globalGridWidth)/2.0;
   float yStart = (height - globalGridWidth)/2.0;
   
   float gridSpacingInterval = 0;
   
-  if(gridSize>=gridSizeY){
-    gridSpacingInterval = globalGridWidth/float(gridSize);  
+  if(gridSizeX>=gridSizeY){
+    gridSpacingInterval = globalGridWidth/float(gridSizeX);  
   }
   else{
     gridSpacingInterval = globalGridWidth/float(gridSizeY);  
@@ -84,7 +97,7 @@ void draw() {
 
   float gridDim = gridSpacingInterval * (percentageGrid/100);
   
-  for(int i=0; i<gridSize; i++){
+  for(int i=0; i<gridSizeX; i++){
     for(int j=0;j<gridSizeY; j++){
     
       pushMatrix();
@@ -93,7 +106,7 @@ void draw() {
       
       noStroke();
       
-      float percent_x = float(i)/float(gridSize-1);
+      float percent_x = float(i)/float(gridSizeX-1);
       float percent_y = float(j)/float(gridSizeY-1);
       
       
@@ -128,6 +141,7 @@ void draw() {
     
   if(record){
    endRecord();
+   recordFrame++;
    record = false;
   }
   
@@ -138,12 +152,7 @@ void keyPressed() {
     case('p'):
     record = true;
     break;
-    case('l'):
-    controlP5.load("exos.properties");
-    break;
-    case('s'):
-    controlP5.save("exos.properties");
-    break;
+
   }
 }
 
