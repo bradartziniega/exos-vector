@@ -156,6 +156,11 @@ void draw() {
 
   float gridDim = gridSpacingInterval * (percentageGrid/100);
   
+  xStart = (width - gridSizeX*gridSpacingInterval)/2.0;
+  yStart = (height - gridSizeY*gridSpacingInterval)/2.0;
+  
+  
+  
   for(int i=0; i<gridSizeX; i++){
     for(int j=0;j<gridSizeY; j++){
     
@@ -195,8 +200,7 @@ void draw() {
         float currentRotation = evaluateBiLinear(currentQuadrant,percent_x,percent_y,mousePercentX,mousePercentY,0,1);
         float lineWeight = evaluateBiLinear(currentQuadrant,percent_x,percent_y,mousePercentX,mousePercentY,lineWeight_topleft,lineWeight_topright);
         currentColor = lerpColor(topLeft.getColorValue(),topRight.getColorValue(),currentRotation);
-        
-        
+
         int index = j*gridSizeX + i;
         float dx = currentRotation - dim[index];
         float dL = lineWeight - dimLine[index];
@@ -205,15 +209,9 @@ void draw() {
         float easing = pow(1 - closeness,10);
         if (easing<=0.01) easing = 0.01;
 
-        
-        
-        
         dim[index] += dx*easing;
         dimLine[index] += dL*easing;
-        //text("Close: " + String.format("%.3f", closeness),0,0);
-        //text("Easing: " + String.format("%.3f", easing),0,20);
-        //text("Dim: " + String.format("%.3f", dim[index]),0,40);
-        
+  
         rotate(radians(dim[index]*45));
         fill(currentColor);
         lineWeight = dimLine[index];
@@ -226,17 +224,17 @@ void draw() {
         float rotationRowStart = lerp(topLeftMark,bottomLeftMark,percent_y);
         float rotationRowEnd = lerp(topRightMark,bottomRightMark,percent_y);
         float currentRotation = lerp(rotationRowStart,rotationRowEnd,percent_x);
-      
         float lineWeightRowStart = lerp(lineWeight_topleft,lineWeight_bottomleft,percent_y); 
         float lineWeightRowEnd = lerp(lineWeight_topright,lineWeight_bottomright,percent_y);
         float lineWeight = lerp(lineWeightRowStart,lineWeightRowEnd,percent_x);
-      
         rotate(radians(currentRotation*45));
         fill(currentColor);            
         rect(-lineWeight/2,-gridDim/2,lineWeight,gridDim);
         rect(-gridDim/2,-lineWeight/2,gridDim,lineWeight);
       }
-      popMatrix();    
+      
+      popMatrix();
+      
     }
   }
   if(record){
@@ -247,15 +245,13 @@ void draw() {
 }
 
 void initializeInteractiveModeSettings(){
+  
   topLeft.setColorValue(color(137,61,255));
   topRight.setColorValue(color(0,255,43)); 
   percentGrid.setValue(68);
-  //gridX.setValue(43);
-  //gridY.setValue(30);
-  //sliderTopRight.setValue(6);
-  gridX.setValue(10);
-  gridY.setValue(10);
-  sliderTopRight.setValue(20);
+  gridX.setValue(43);
+  gridY.setValue(30);
+  sliderTopRight.setValue(6);
   sliderTopLeft.setValue(0.59);
   sliderBottomLeft.setValue(0.59);
   sliderBottomRight.setValue(0.59);
@@ -269,6 +265,7 @@ void initializeInteractiveModeSettings(){
       dimLine[index]=0;
     }
   }
+  
 }
 
 void toggle_interactive(boolean theFlag){
@@ -279,6 +276,21 @@ void toggle_interactive(boolean theFlag){
    println("int disabled");
  }
 }
+
+void controlEvent(ControlEvent theEvent){
+  if(theEvent.controller().equals(gridX) || theEvent.controller().equals(gridY)){
+    dim = new float[gridSizeX*gridSizeY];
+  dimLine = new float[gridSizeX*gridSizeY];
+  for(int i=0;i<gridSizeX;i++){
+    for(int j=0;j<gridSizeY;j++){
+      int index = j*gridSizeX + i;
+      dim[index]=0;  
+      dimLine[index]=0;
+    }
+  }
+  }  
+}
+
 
 float evaluateBiLinear(int quadrant,float percent_x,float percent_y,float mousePercentX,float mousePercentY,float valueToGoFrom, float valueToGetTo){
   float x1, x2, y1, y2, Q11, Q21, Q12, Q22;
