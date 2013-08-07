@@ -165,13 +165,11 @@ void draw() {
     for(int j=0;j<gridSizeY; j++){
     
       pushMatrix();
-      
       translate(xStart + (i*gridSpacingInterval) + (gridSpacingInterval/2),yStart + (j*gridSpacingInterval) + (gridSpacingInterval/2));
-      
       noStroke();
       
       float percent_x = float(i)/float(gridSizeX-1);
-      float percent_y = 1-(float(j)/float(gridSizeY-1));
+      float percent_y = float(j)/float(gridSizeY-1);
       
       color colorRowStart = lerpColor(topLeft.getColorValue(),bottomLeft.getColorValue(),percent_y);
       color colorRowEnd = lerpColor(topRight.getColorValue(),bottomRight.getColorValue(),percent_y);
@@ -193,22 +191,25 @@ void draw() {
         float currentRotationY = 0;
         int currentQuadrant = 0;
         
-        if(percent_x<=mousePercentX && percent_y>mousePercentY){
+        if(percent_x<=mousePercentX && percent_y<mousePercentY){
           currentQuadrant = 1;
         }
-        else if(percent_x>mousePercentX && percent_y>mousePercentY){
+        else if(percent_x>mousePercentX && percent_y<mousePercentY){
           currentQuadrant = 2;
         }
-        else if(percent_x<=mousePercentX && percent_y<=mousePercentY){
+        else if(percent_x<=mousePercentX && percent_y>=mousePercentY){
           currentQuadrant = 3;
         }
-        else if(percent_x>mousePercentX && percent_y<=mousePercentY){
+        else if(percent_x>mousePercentX && percent_y>=mousePercentY){
           currentQuadrant = 4;
         }
         
-        text(currentQuadrant,0,0);
+       // text(currentQuadrant,0,0);
+       // text(percent_x + "," + percent_y,0,20);
         
-        float currentRotation = evaluateBiLinear(currentQuadrant,percent_x,percent_y,mousePercentX,mousePercentY,0,1);
+        float currentRotation = 0;
+        
+        currentRotation = evaluateBiLinear(currentQuadrant,percent_x,percent_y,mousePercentX,mousePercentY,0,1);
         float lineWeight = evaluateBiLinear(currentQuadrant,percent_x,percent_y,mousePercentX,mousePercentY,lineWeight_topleft,lineWeight_topright);
         
         rotate(radians(currentRotation*45));
@@ -248,8 +249,8 @@ void draw() {
   }
 
 
-  text(mousePercentX,width-50,20);
-  text(mousePercentY,width-50,40);
+  //text(mousePercentX,width-50,20);
+  //text(mousePercentY,width-50,40);
 }
 
 
@@ -276,7 +277,7 @@ float evaluateBiLinear(int quadrant,float percent_x,float percent_y,float mouseP
     x1 = 0;
     x2 = mousePercentX;
     y1 = mousePercentY;
-    y2 = 1;
+    y2 = 0;
     Q11 = valueToGoFrom;
     Q21 = valueToGetTo;
     Q22 = valueToGoFrom;
@@ -286,7 +287,7 @@ float evaluateBiLinear(int quadrant,float percent_x,float percent_y,float mouseP
      x1 = mousePercentX;
      x2 = 1;
      y1 = mousePercentY;
-     y2 = 1;
+     y2 = 0;
      Q11 = valueToGetTo;
      Q21 = valueToGoFrom;
      Q22 = valueToGoFrom;
@@ -295,7 +296,7 @@ float evaluateBiLinear(int quadrant,float percent_x,float percent_y,float mouseP
    case(3):
      x1 = 0;
      x2 = mousePercentX;
-     y1 = 0;
+     y1 = 1;
      y2 = mousePercentY;
      Q11 = valueToGoFrom;
      Q21 = valueToGoFrom;
@@ -305,7 +306,7 @@ float evaluateBiLinear(int quadrant,float percent_x,float percent_y,float mouseP
    case(4):
      x1 = mousePercentX;
      x2 = 1;
-     y1 = 0;
+     y1 = 1;
      y2 = mousePercentY;
      Q11 = valueToGoFrom;
      Q21 = valueToGoFrom;
@@ -314,7 +315,7 @@ float evaluateBiLinear(int quadrant,float percent_x,float percent_y,float mouseP
    break;
   }
 
-  float A = 1/((x2-x1)*(y2-1));
+  float A = 1/((x2-x1)*(y2-y1));
   float B = (Q11*(x2-x)*(y2-y) + Q21*(x-x1)*(y2-y) + Q12*(x2-x)*(y-y1) + Q22*(x-x1)*(y-y1));
   
   return A*B;
@@ -349,7 +350,7 @@ void mouseMoved(){
   
   //if(isInGrid(mouseX,mouseY)){
       mousePercentX = (mouseX-xStart)/(gridSizeX*gridSpacingInterval);
-      mousePercentY = 1-(mouseY-yStart)/(gridSizeY*gridSpacingInterval);
+      mousePercentY = (mouseY-yStart)/(gridSizeY*gridSpacingInterval);
    //}
   // else{
   //   mousePercentX = .5;
