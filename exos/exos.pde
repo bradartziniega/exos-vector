@@ -15,7 +15,6 @@ public float numberboxValue = 100;
 int recordFrame = 0;
 boolean record;
 
-
 void setup() {
   size(1600,1024);
   smooth();
