@@ -34,28 +34,38 @@ void setup() {
   background_picker = controlP5.addColorPicker("background_color",20,100,100,15);
   
   toggleTopLeft = controlP5.addToggle("toggle_topleft",false,int(tL.x),int(tL.y-20),15,15);
-  toggleTopLeft.setLabel("");
+  toggleTopLeft.setLabel("X");
+  toggleTopLeft.captionLabel().style().marginTop = -15;
+  toggleTopLeft.captionLabel().style().marginLeft = 20;
   sliderTopLeft = controlP5.addSlider("lineWeight_topleft",0.1,50,2,int(tL.x),int(tL.y),100,15);
-  sliderTopLeft.setLabel("Line Weight");
+  sliderTopLeft.setLabel("");
   topLeft = controlP5.addColorPicker("top_left",int(tL.x),int(tL.y+20),100,15);
   
   toggleTopRight = controlP5.addToggle("toggle_topright",false,int(tR.x),int(tR.y-20),15,15);
-  toggleTopRight.setLabel(""); 
+  toggleTopRight.setLabel("X"); 
   sliderTopRight = controlP5.addSlider("lineWeight_topright",0.1,50,2,int(tR.x),int(tR.y),100,15);
-  sliderTopRight.setLabel("Line Weight");
+  sliderTopRight.setLabel("");
   topRight = controlP5.addColorPicker("top_right",int(tR.x),int(tR.y+20),100,15);
+  toggleTopRight.captionLabel().style().marginTop = -15;
+  toggleTopRight.captionLabel().style().marginLeft = 20;
+
   
   toggleBottomLeft = controlP5.addToggle("toggle_bottomleft",false,int(bL.x),int(bL.y-20),15,15);
-  toggleBottomLeft.setLabel("");
+  toggleBottomLeft.setLabel("X");
   sliderBottomLeft = controlP5.addSlider("lineWeight_bottomleft",0.1,50,2,int(bL.x),int(bL.y),100,15);
-  sliderBottomLeft.setLabel("Line Weight");
+  sliderBottomLeft.setLabel("");
   bottomLeft = controlP5.addColorPicker("bottom_left",int(bL.x),int(bL.y+20),100,15);
+  toggleBottomLeft.captionLabel().style().marginTop = -15;
+  toggleBottomLeft.captionLabel().style().marginLeft = 20;
+
   
   toggleBottomRight = controlP5.addToggle("toggle_bottomright",false,int(bR.x),int(bR.y-20),15,15);
-  toggleBottomRight.setLabel("");
+  toggleBottomRight.setLabel("X");
   sliderBottomRight = controlP5.addSlider("lineWeight_bottomright",0.1,50,2,int(bR.x),int(bR.y),100,15);
-  sliderBottomRight.setLabel("Line Weight");
+  sliderBottomRight.setLabel("");
   bottomRight = controlP5.addColorPicker("bottom_right",int(bR.x),int(bR.y+20),100,15);
+  toggleBottomRight.captionLabel().style().marginTop = -15;
+  toggleBottomRight.captionLabel().style().marginLeft = 20;
 
   controlP5.setColorLabel(0xffffff);
   controlP5.enableShortcuts();
@@ -113,7 +123,7 @@ void draw() {
       color colorRowEnd = lerpColor(topRight.getColorValue(),bottomRight.getColorValue(),percent_y);
       color currentColor = lerpColor(colorRowStart,colorRowEnd,percent_x);
 
-      int topLeftMark = toggleTopLeft.getState()? 1 : 0;
+      int topLeftMark = toggleTopLeft.getState()? (1==1?1:0): 0;
       int topRightMark = toggleTopRight.getState()? 1 : 0;
       int bottomLeftMark = toggleBottomLeft.getState()? 1 : 0;
       int bottomRightMark = toggleBottomRight.getState()? 1 : 0;
