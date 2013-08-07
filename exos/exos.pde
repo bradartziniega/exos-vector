@@ -5,6 +5,7 @@ ControlP5 controlP5;
 ColorPicker topLeft, topRight, bottomLeft, bottomRight, background_picker;
 Toggle toggleTopLeft, toggleTopRight, toggleBottomLeft, toggleBottomRight;
 Slider sliderTopLeft, sliderTopRight, sliderBottomLeft, sliderBottomRight, gridX, gridY, percentGrid;
+Toggle ccwTopLeft, ccwTopRight, ccwBottomLeft, ccwBottomRight;
 
 public int gridSizeX,gridSizeY;
 public float lineWeight_topleft, lineWeight_topright, lineWeight_bottomleft, lineWeight_bottomright;
@@ -33,39 +34,82 @@ void setup() {
   
   background_picker = controlP5.addColorPicker("background_color",20,100,100,15);
   
+  //TOP LEFT
+  //--------------------------------------------------------
+  //X or + 
   toggleTopLeft = controlP5.addToggle("toggle_topleft",false,int(tL.x),int(tL.y-20),15,15);
   toggleTopLeft.setLabel("X");
   toggleTopLeft.captionLabel().style().marginTop = -15;
   toggleTopLeft.captionLabel().style().marginLeft = 20;
+  //CW or CCW
+  ccwTopLeft = controlP5.addToggle("toggle_topleftCCW",false,int(tL.x)+40,int(tL.y-20),15,15);
+  ccwTopLeft.setLabel("CW");
+  ccwTopLeft.captionLabel().style().marginTop = -15;
+  ccwTopLeft.captionLabel().style().marginLeft = 20;
+  //Lineweight
   sliderTopLeft = controlP5.addSlider("lineWeight_topleft",0.1,50,2,int(tL.x),int(tL.y),100,15);
   sliderTopLeft.setLabel("");
+  //Color
   topLeft = controlP5.addColorPicker("top_left",int(tL.x),int(tL.y+20),100,15);
+  //--------------------------------------------------------
   
+  //TOP RIGHT
+  //--------------------------------------------------------
+  //X or + 
   toggleTopRight = controlP5.addToggle("toggle_topright",false,int(tR.x),int(tR.y-20),15,15);
   toggleTopRight.setLabel("X"); 
-  sliderTopRight = controlP5.addSlider("lineWeight_topright",0.1,50,2,int(tR.x),int(tR.y),100,15);
-  sliderTopRight.setLabel("");
-  topRight = controlP5.addColorPicker("top_right",int(tR.x),int(tR.y+20),100,15);
   toggleTopRight.captionLabel().style().marginTop = -15;
   toggleTopRight.captionLabel().style().marginLeft = 20;
-
+  //CW or CCW
+  ccwTopRight = controlP5.addToggle("toggle_toprightCCW",false,int(tR.x)+40,int(tR.y-20),15,15);
+  ccwTopRight.setLabel("CW"); 
+  ccwTopRight.captionLabel().style().marginTop = -15;
+  ccwTopRight.captionLabel().style().marginLeft = 20;
+  //Lineweight
+  sliderTopRight = controlP5.addSlider("lineWeight_topright",0.1,50,2,int(tR.x),int(tR.y),100,15);
+  sliderTopRight.setLabel("");
+  //Color
+  topRight = controlP5.addColorPicker("top_right",int(tR.x),int(tR.y+20),100,15);
+  //--------------------------------------------------------
   
+  //BOTTOM LEFT
+  //--------------------------------------------------------
+  //X or + 
   toggleBottomLeft = controlP5.addToggle("toggle_bottomleft",false,int(bL.x),int(bL.y-20),15,15);
   toggleBottomLeft.setLabel("X");
-  sliderBottomLeft = controlP5.addSlider("lineWeight_bottomleft",0.1,50,2,int(bL.x),int(bL.y),100,15);
-  sliderBottomLeft.setLabel("");
-  bottomLeft = controlP5.addColorPicker("bottom_left",int(bL.x),int(bL.y+20),100,15);
   toggleBottomLeft.captionLabel().style().marginTop = -15;
   toggleBottomLeft.captionLabel().style().marginLeft = 20;
+  //CW or CCW
+  ccwBottomLeft = controlP5.addToggle("toggle_bottomleftCCW",false,int(bL.x)+40,int(bL.y-20),15,15);
+  ccwBottomLeft.setLabel("CW");
+  ccwBottomLeft.captionLabel().style().marginTop = -15;
+  ccwBottomLeft.captionLabel().style().marginLeft = 20;  
+  //Lineweight
+  sliderBottomLeft = controlP5.addSlider("lineWeight_bottomleft",0.1,50,2,int(bL.x),int(bL.y),100,15);
+  sliderBottomLeft.setLabel("");
+  //Color
+  bottomLeft = controlP5.addColorPicker("bottom_left",int(bL.x),int(bL.y+20),100,15);
+  //--------------------------------------------------------
 
-  
+   //BOTTOM RIGHT
+  //--------------------------------------------------------
+  //X or + 
   toggleBottomRight = controlP5.addToggle("toggle_bottomright",false,int(bR.x),int(bR.y-20),15,15);
   toggleBottomRight.setLabel("X");
+  toggleBottomRight.captionLabel().style().marginTop = -15;
+  toggleBottomRight.captionLabel().style().marginLeft = 20;  
+  //CW or CCW
+  ccwBottomRight = controlP5.addToggle("toggle_bottomrightCCW",false,int(bR.x)+40,int(bR.y-20),15,15);
+  ccwBottomRight.setLabel("CW");
+  ccwBottomRight.captionLabel().style().marginTop = -15;
+  ccwBottomRight.captionLabel().style().marginLeft = 20;    
+  //Lineweight
   sliderBottomRight = controlP5.addSlider("lineWeight_bottomright",0.1,50,2,int(bR.x),int(bR.y),100,15);
   sliderBottomRight.setLabel("");
+  //Color
   bottomRight = controlP5.addColorPicker("bottom_right",int(bR.x),int(bR.y+20),100,15);
-  toggleBottomRight.captionLabel().style().marginTop = -15;
-  toggleBottomRight.captionLabel().style().marginLeft = 20;
+  //--------------------------------------------------------
+
 
   controlP5.setColorLabel(0xffffff);
   controlP5.enableShortcuts();
@@ -123,10 +167,10 @@ void draw() {
       color colorRowEnd = lerpColor(topRight.getColorValue(),bottomRight.getColorValue(),percent_y);
       color currentColor = lerpColor(colorRowStart,colorRowEnd,percent_x);
 
-      int topLeftMark = toggleTopLeft.getState()? (1==1?1:0): 0;
-      int topRightMark = toggleTopRight.getState()? 1 : 0;
-      int bottomLeftMark = toggleBottomLeft.getState()? 1 : 0;
-      int bottomRightMark = toggleBottomRight.getState()? 1 : 0;
+      int topLeftMark = toggleTopLeft.getState()? (ccwTopLeft.getState()? 1 :-1) : 0;
+      int topRightMark = toggleTopRight.getState()? (ccwTopRight.getState()? 1 :-1) : 0;
+      int bottomLeftMark = toggleBottomLeft.getState()? (ccwBottomLeft.getState()? 1 :-1) : 0;
+      int bottomRightMark = toggleBottomRight.getState()? (ccwBottomRight.getState()? 1 :-1) : 0;
 
       float rotationRowStart = lerp(topLeftMark,bottomLeftMark,percent_y);
       float rotationRowEnd = lerp(topRightMark,bottomRightMark,percent_y);
