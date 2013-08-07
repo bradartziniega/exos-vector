@@ -133,10 +133,12 @@ void setup() {
   percentGrid.setValue(50);
   gridX.setValue(25);
   gridY.setValue(25);
-  sliderTopLeft.setValue(2);
-  sliderTopRight.setValue(2);
-  sliderBottomLeft.setValue(2);
-  sliderBottomRight.setValue(2);
+  sliderTopLeft.setValue(0.59);
+  sliderTopRight.setValue(6.08);
+  sliderBottomLeft.setValue(0.59);
+  sliderBottomRight.setValue(0.59);
+  
+  
   
 }
 
@@ -169,7 +171,7 @@ void draw() {
       noStroke();
       
       float percent_x = float(i)/float(gridSizeX-1);
-      float percent_y = float(j)/float(gridSizeY-1);
+      float percent_y = 1-(float(j)/float(gridSizeY-1));
       
       color colorRowStart = lerpColor(topLeft.getColorValue(),bottomLeft.getColorValue(),percent_y);
       color colorRowEnd = lerpColor(topRight.getColorValue(),bottomRight.getColorValue(),percent_y);
@@ -189,35 +191,26 @@ void draw() {
         
         float currentRotationX = 0;
         float currentRotationY = 0;
+        int currentQuadrant = 0;
         
-        if(percent_x<=mousePercentX){
-          currentRotationX = lerp(0,1,percent_x/mousePercentX);
+        if(percent_x<=mousePercentX && percent_y>mousePercentY){
+          currentQuadrant = 1;
         }
-        else{
-          currentRotationX = lerp(1,0,(percent_x-mousePercentX)/(1-mousePercentX));
+        else if(percent_x>mousePercentX && percent_y>mousePercentY){
+          currentQuadrant = 2;
+        }
+        else if(percent_x<=mousePercentX && percent_y<=mousePercentY){
+          currentQuadrant = 3;
+        }
+        else if(percent_x>mousePercentX && percent_y<=mousePercentY){
+          currentQuadrant = 4;
         }
         
-        if(percent_y<=mousePercentY){
-          currentRotationY = lerp(0,1,percent_y/mousePercentY);
-        }
-        else{
-          currentRotationY = lerp(1,0,(percent_y-mousePercentY)/(1-mousePercentY));
-        }
+        text(currentQuadrant,0,0);
         
-        float currentRotation = 0;
+        float currentRotation = evaluateBiLinear(currentQuadrant,percent_x,percent_y,mousePercentX,mousePercentY,0,1);
+        float lineWeight = evaluateBiLinear(currentQuadrant,percent_x,percent_y,mousePercentX,mousePercentY,lineWeight_topleft,lineWeight_topright);
         
-        if(currentRotationY<=currentRotationX){
-          currentRotation = currentRotationY;
-        }
-        else{ currentRotation = currentRotationX; }
-        
-        float rotationRowStart = lerp(topLeftMark,bottomLeftMark,percent_y);
-        float rotationRowEnd = lerp(topRightMark,bottomRightMark,percent_y);
-        
-        float lineWeightRowStart = lerp(lineWeight_topleft,lineWeight_bottomleft,percent_y); 
-        float lineWeightRowEnd = lerp(lineWeight_topright,lineWeight_bottomright,percent_y);
-        float lineWeight = lerp(lineWeightRowStart,lineWeightRowEnd,percent_x);
-      
         rotate(radians(currentRotation*45));
         fill(currentColor);            
         rect(-lineWeight/2,-gridDim/2,lineWeight,gridDim);
@@ -253,13 +246,83 @@ void draw() {
    recordFrame++;
    record = false;
   }
+
+
+  text(mousePercentX,width-50,20);
+  text(mousePercentY,width-50,40);
+}
+
+
+float evaluateBiLinear(int quadrant,float percent_x,float percent_y,float mousePercentX,float mousePercentY,float valueToGoFrom, float valueToGetTo){
   
-  strokeWeight(1);  
-  stroke(255);
-  noFill();
-  rect(xStart,yStart,gridSizeX*(gridSpacingInterval),gridSizeY*(gridSpacingInterval));
+  float x1, x2, y1, y2, Q11, Q21, Q12, Q22;
+  
+  
+  x1 = 0;
+  x2 = 0;
+  y1 = 0;
+  y2 = 0;
+  Q11 = 0;
+  Q21 = 0;
+  Q12 = 0;
+  Q22 = 0;
+  
+  float x = percent_x;
+  float y = percent_y;
+  
+  
+  switch(quadrant){
+   case(1):
+    x1 = 0;
+    x2 = mousePercentX;
+    y1 = mousePercentY;
+    y2 = 1;
+    Q11 = valueToGoFrom;
+    Q21 = valueToGetTo;
+    Q22 = valueToGoFrom;
+    Q12 = valueToGoFrom;
+   break;
+   case(2):
+     x1 = mousePercentX;
+     x2 = 1;
+     y1 = mousePercentY;
+     y2 = 1;
+     Q11 = valueToGetTo;
+     Q21 = valueToGoFrom;
+     Q22 = valueToGoFrom;
+     Q12 = valueToGoFrom;
+   break;
+   case(3):
+     x1 = 0;
+     x2 = mousePercentX;
+     y1 = 0;
+     y2 = mousePercentY;
+     Q11 = valueToGoFrom;
+     Q21 = valueToGoFrom;
+     Q22 = valueToGetTo;
+     Q12 = valueToGoFrom;
+   break;
+   case(4):
+     x1 = mousePercentX;
+     x2 = 1;
+     y1 = 0;
+     y2 = mousePercentY;
+     Q11 = valueToGoFrom;
+     Q21 = valueToGoFrom;
+     Q22 = valueToGoFrom;
+     Q12 = valueToGetTo;
+   break;
+  }
+
+  float A = 1/((x2-x1)*(y2-1));
+  float B = (Q11*(x2-x)*(y2-y) + Q21*(x-x1)*(y2-y) + Q12*(x2-x)*(y-y1) + Q22*(x-x1)*(y-y1));
+  
+  return A*B;
   
 }
+
+
+
 
 void keyPressed() {
   switch(key) {
@@ -283,17 +346,16 @@ boolean isInGrid(int xPos, int yPos){
 
 void mouseMoved(){
  
-  if(isInGrid(mouseX,mouseY)){
+  
+  //if(isInGrid(mouseX,mouseY)){
       mousePercentX = (mouseX-xStart)/(gridSizeX*gridSpacingInterval);
-      mousePercentY = (mouseY-yStart)/(gridSizeY*gridSpacingInterval);
-   }
-   else{
-     mousePercentX = .5;
-     mousePercentY = .5;
-   }
+      mousePercentY = 1-(mouseY-yStart)/(gridSizeY*gridSpacingInterval);
+   //}
+  // else{
+  //   mousePercentX = .5;
+  //   mousePercentY = .5;
+  // }
   
 }
-
-
 
 
