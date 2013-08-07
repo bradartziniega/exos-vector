@@ -6,6 +6,7 @@ ColorPicker topLeft, topRight, bottomLeft, bottomRight, background_picker;
 Toggle toggleTopLeft, toggleTopRight, toggleBottomLeft, toggleBottomRight;
 Slider sliderTopLeft, sliderTopRight, sliderBottomLeft, sliderBottomRight, gridX, gridY, percentGrid;
 Toggle ccwTopLeft, ccwTopRight, ccwBottomLeft, ccwBottomRight;
+Toggle isInteractive;
 
 public int gridSizeX,gridSizeY;
 public float lineWeight_topleft, lineWeight_topright, lineWeight_bottomleft, lineWeight_bottomright;
@@ -20,10 +21,6 @@ void setup() {
   size(1600,1024);
   smooth();
   controlP5 = new ControlP5(this);
-  
-  gridY = controlP5.addSlider("gridSizeY",5,100,27.0,20,0,100,15);  
-  gridX = controlP5.addSlider("gridSizeX",5,100,27.0,20,20,100,15);
-  percentGrid = controlP5.addSlider("percentageGrid",0.1,100,50,20,40,100,15);
   
   PVector tL, tR, bL, bR;
   
@@ -110,9 +107,17 @@ void setup() {
   bottomRight = controlP5.addColorPicker("bottom_right",int(bR.x),int(bR.y+20),100,15);
   //--------------------------------------------------------
 
-
   controlP5.setColorLabel(0xffffff);
   controlP5.enableShortcuts();
+  
+  isInteractive = controlP5.addToggle("toggle_interactive",false,20,20,15,15);
+  isInteractive.setLabel("Interactive");
+  isInteractive.captionLabel().style().marginTop = -15;
+  isInteractive.captionLabel().style().marginLeft = 20;
+  
+  gridX = controlP5.addSlider("gridSizeX",5,100,27.0,20,40,100,15);
+  gridY = controlP5.addSlider("gridSizeY",5,100,27.0,20,60,100,15);  
+  percentGrid = controlP5.addSlider("percentageGrid",0.1,100,50,20,80,100,15);
   
   background_picker.setColorValue(color(31,31,33,255));
   background_picker.setLabel("Background Color");
@@ -207,6 +212,12 @@ void keyPressed() {
     break;
 
   }
+}
+
+void mouseMoved(){
+ 
+  
+  
 }
 
 
