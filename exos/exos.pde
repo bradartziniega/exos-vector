@@ -17,7 +17,12 @@ public float numberboxValue = 100;
 int recordFrame = 0;
 boolean record;
 
+float xStart, yStart;
+float gridSpacingInterval;
+float mousePercentX, mousePercentY;
+
 void setup() {
+  
   size(1600,1024);
   smooth();
   controlP5 = new ControlP5(this);
@@ -28,6 +33,9 @@ void setup() {
   tR = new PVector(tL.x+180,tL.y);
   bL = new PVector(tL.x, tL.y+200);
   bR = new PVector(tR.x, tL.y+200);  
+  
+  xStart = (width - globalGridWidth)/2.0;
+  yStart = (height - globalGridWidth)/2.0;
   
   background_picker = controlP5.addColorPicker("background_color",20,100,100,15);
   
@@ -138,13 +146,9 @@ void draw() {
     beginRecord(PDF,"output" + recordFrame + ".pdf");
   }
   
-  
   background(background_picker.getColorValue());
   
-  float xStart = (width - globalGridWidth)/2.0;
-  float yStart = (height - globalGridWidth)/2.0;
-  
-  float gridSpacingInterval = 0;
+  gridSpacingInterval = 0;
   
   if(gridSizeX>=gridSizeY){
     gridSpacingInterval = globalGridWidth/float(gridSizeX);  
@@ -167,7 +171,6 @@ void draw() {
       float percent_x = float(i)/float(gridSizeX-1);
       float percent_y = float(j)/float(gridSizeY-1);
       
-      
       color colorRowStart = lerpColor(topLeft.getColorValue(),bottomLeft.getColorValue(),percent_y);
       color colorRowEnd = lerpColor(topRight.getColorValue(),bottomRight.getColorValue(),percent_y);
       color currentColor = lerpColor(colorRowStart,colorRowEnd,percent_x);
@@ -176,21 +179,54 @@ void draw() {
       int topRightMark = toggleTopRight.getState()? (ccwTopRight.getState()? 1 :-1) : 0;
       int bottomLeftMark = toggleBottomLeft.getState()? (ccwBottomLeft.getState()? 1 :-1) : 0;
       int bottomRightMark = toggleBottomRight.getState()? (ccwBottomRight.getState()? 1 :-1) : 0;
+      
+      if(isInteractive.getState()){
+        topLeftMark = 0;
+        topRightMark = 0;
+        bottomLeftMark = 0;
+        bottomRightMark = 0;       
+        
+        float currentRotation = 0;
+        
+        if(percent_x<=mousePercentX){
+          currentRotation = lerp(0,1,percent_x/mousePercentX);
+        }
+        else{
+          currentRotation = lerp(1,0,mousePercentX/percent_x);
+        }
+        
+        
+        float rotationRowStart = lerp(topLeftMark,bottomLeftMark,percent_y);
+        float rotationRowEnd = lerp(topRightMark,bottomRightMark,percent_y);
+        
+        float lineWeightRowStart = lerp(lineWeight_topleft,lineWeight_bottomleft,percent_y); 
+        float lineWeightRowEnd = lerp(lineWeight_topright,lineWeight_bottomright,percent_y);
+        float lineWeight = lerp(lineWeightRowStart,lineWeightRowEnd,percent_x);
+      
+        rotate(radians(currentRotation*45));
+        fill(currentColor);            
+        rect(-lineWeight/2,-gridDim/2,lineWeight,gridDim);
+        rect(-gridDim/2,-lineWeight/2,gridDim,lineWeight);
+      
+      }
+      
+      else{
 
-      float rotationRowStart = lerp(topLeftMark,bottomLeftMark,percent_y);
-      float rotationRowEnd = lerp(topRightMark,bottomRightMark,percent_y);
-      float currentRotation = lerp(rotationRowStart,rotationRowEnd,percent_x);
+
+       
+        float rotationRowStart = lerp(topLeftMark,bottomLeftMark,percent_y);
+        float rotationRowEnd = lerp(topRightMark,bottomRightMark,percent_y);
+        float currentRotation = lerp(rotationRowStart,rotationRowEnd,percent_x);
+        
+        float lineWeightRowStart = lerp(lineWeight_topleft,lineWeight_bottomleft,percent_y); 
+        float lineWeightRowEnd = lerp(lineWeight_topright,lineWeight_bottomright,percent_y);
+        float lineWeight = lerp(lineWeightRowStart,lineWeightRowEnd,percent_x);
       
-      
-      float lineWeightRowStart = lerp(lineWeight_topleft,lineWeight_bottomleft,percent_y); 
-      float lineWeightRowEnd = lerp(lineWeight_topright,lineWeight_bottomright,percent_y);
-      float lineWeight = lerp(lineWeightRowStart,lineWeightRowEnd,percent_x);
-      
-      rotate(radians(currentRotation*45));
-      
-      fill(currentColor);            
-      rect(-lineWeight/2,-gridDim/2,lineWeight,gridDim);
-      rect(-gridDim/2,-lineWeight/2,gridDim,lineWeight);
+        rotate(radians(currentRotation*45));
+        fill(currentColor);            
+        rect(-lineWeight/2,-gridDim/2,lineWeight,gridDim);
+        rect(-gridDim/2,-lineWeight/2,gridDim,lineWeight);
+      }
       
       popMatrix();
       
@@ -203,6 +239,11 @@ void draw() {
    record = false;
   }
   
+  strokeWeight(1);  
+  stroke(255);
+  noFill();
+  rect(xStart,yStart,gridSizeX*(gridSpacingInterval),gridSizeY*(gridSpacingInterval));
+  
 }
 
 void keyPressed() {
@@ -214,9 +255,27 @@ void keyPressed() {
   }
 }
 
+boolean isInGrid(int xPos, int yPos){
+   
+ if(xPos>=xStart && xPos<=xStart+gridSizeX*gridSpacingInterval && yPos>=yStart && yPos<=yStart+gridSizeY*gridSpacingInterval){
+   return true; 
+ }
+ else{
+   return false;
+ }
+
+}
+
 void mouseMoved(){
  
-  
+  if(isInGrid(mouseX,mouseY)){
+      mousePercentX = (mouseX-xStart)/(gridSizeX*gridSpacingInterval);
+      mousePercentY = (mouseY-yStart)/(gridSizeY*gridSpacingInterval);
+   }
+   else{
+     mousePercentX = 0;
+     mousePercentY = 0;
+   }
   
 }
 
