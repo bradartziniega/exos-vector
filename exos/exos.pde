@@ -181,20 +181,35 @@ void draw() {
       int bottomRightMark = toggleBottomRight.getState()? (ccwBottomRight.getState()? 1 :-1) : 0;
       
       if(isInteractive.getState()){
+        
         topLeftMark = 0;
         topRightMark = 0;
         bottomLeftMark = 0;
         bottomRightMark = 0;       
         
-        float currentRotation = 0;
+        float currentRotationX = 0;
+        float currentRotationY = 0;
         
         if(percent_x<=mousePercentX){
-          currentRotation = lerp(0,1,percent_x/mousePercentX);
+          currentRotationX = lerp(0,1,percent_x/mousePercentX);
         }
         else{
-          currentRotation = lerp(1,0,mousePercentX/percent_x);
+          currentRotationX = lerp(1,0,(percent_x-mousePercentX)/(1-mousePercentX));
         }
         
+        if(percent_y<=mousePercentY){
+          currentRotationY = lerp(0,1,percent_y/mousePercentY);
+        }
+        else{
+          currentRotationY = lerp(1,0,(percent_y-mousePercentY)/(1-mousePercentY));
+        }
+        
+        float currentRotation = 0;
+        
+        if(currentRotationY<=currentRotationX){
+          currentRotation = currentRotationY;
+        }
+        else{ currentRotation = currentRotationX; }
         
         float rotationRowStart = lerp(topLeftMark,bottomLeftMark,percent_y);
         float rotationRowEnd = lerp(topRightMark,bottomRightMark,percent_y);
@@ -273,8 +288,8 @@ void mouseMoved(){
       mousePercentY = (mouseY-yStart)/(gridSizeY*gridSpacingInterval);
    }
    else{
-     mousePercentX = 0;
-     mousePercentY = 0;
+     mousePercentX = .5;
+     mousePercentY = .5;
    }
   
 }
